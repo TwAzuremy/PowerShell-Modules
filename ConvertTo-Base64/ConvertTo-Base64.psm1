@@ -1,57 +1,71 @@
-<#
-.SYNOPSIS
-    对输入的字符串进行 Base64 编码或解码。
-
-.DESCRIPTION
-    该函数 `ConvertTo-Base64` 提供两种模式：编码和解码。可以根据参数的不同，进行 Base64 编码或解码的操作。
-    - 编码模式：将输入字符串转为 Base64 编码。
-    - 解码模式：将输入的 Base64 编码字符串还原为原始字符串。
-
-.PARAMETER e
-    "Encode" 首字母，指定编码模式。如果该参数被提供，则函数会将输入字符串进行 Base64 编码。
-
-.PARAMETER d
-    "Decode" 首字母，指定解码模式。如果该参数被提供，则函数会将输入的 Base64 字符串解码为原始字符串。
-
-.PARAMETER InputString
-    输入的字符串，作为 Base64 编码或解码的目标。此参数必须为字符串类型。
-
-.EXAMPLE
-    ConvertTo-Base64 -e -InputString "Hello, World!"
-    将字符串 "Hello, World!" 编码为 Base64 格式并输出。
-
-    ConvertTo-Base64 -d -InputString "SGVsbG8sIFdvcmxkIQ=="
-    将 Base64 字符串 "SGVsbG8sIFdvcmxkIQ==" 解码为 "Hello, World!"。
-
-.NOTES
-    作者: Azuremy
-    创建日期: 2023-10-26
-#>
-
 function ConvertTo-Base64 {
-    [CmdletBinding(DefaultParameterSetName = 'Encode')]
+    [CmdletBinding(DefaultParameterSetName='Encode')]
     param (
-        [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'Encode')]
+        [Parameter(Mandatory=$true, Position=0, ParameterSetName='Encode')]
         [Alias('e')]
         [switch]$Encode,
-        
-        [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'Decode')]
+
+        [Parameter(Mandatory=$true, Position=0, ParameterSetName='Decode')]
         [Alias('d')]
         [switch]$Decode,
-        
-        [Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true)]
-        [string]$InputString
+
+        [Parameter(Mandatory=$false, Position=1, ValueFromPipeline=$true)]
+        [string]$InputString,
+
+        [Parameter(Mandatory=$false, Position=2)]
+        [Alias('i')]
+        [string]$Image,
+
+        [Parameter(Mandatory=$false, Position=3)]
+        [Alias('o')]
+        [string]$Output,
+
+        [Parameter(Mandatory=$false, Position=4)]
+        [Alias('txt')]
+        [string]$Base64Txt
     )
+    
     process {
         if ($Encode) {
-            $bytes = [System.Text.Encoding]::UTF8.GetBytes($InputString)
-            $base64 = [System.Convert]::ToBase64String($bytes)
-            Write-Output $base64
+            if ($Image) {
+                # If an image path is provided, read the image and convert to Base64.
+                if (Test-Path $Image) {
+                    $imageBytes = [System.IO.File]::ReadAllBytes($Image)
+                    $base64 = [System.Convert]::ToBase64String($imageBytes)
+                    Write-Output $base64
+                } else {
+                    Write-Error "Invalid image path: $Image"
+                }
+            } elseif ($InputString) {
+                # If text input is provided, convert to Base64.
+                $bytes = [System.Text.Encoding]::UTF8.GetBytes($InputString)
+                $base64 = [System.Convert]::ToBase64String($bytes)
+                Write-Output $base64
+            } else {
+                Write-Error "Please provide the text or image path to be encoded."
+            }
         }
         elseif ($Decode) {
-            $bytes = [System.Convert]::FromBase64String($InputString)
-            $decodedString = [System.Text.Encoding]::UTF8.GetString($bytes)
-            Write-Output $decodedString
+            if ($Base64Txt) {
+                # If a Base64 file path is provided, read the contents of the file and decode it.
+                if (Test-Path $Base64Txt) {
+                    $base64String = Get-Content -Path $Base64Txt -Raw
+                    try {
+                        $imageBytes = [System.Convert]::FromBase64String($base64String)
+                        [System.IO.File]::WriteAllBytes($Output, $imageBytes)
+                        Write-Output "Image saved to: $Output"
+                    } catch {
+                        Write-Error "Base64 decoding failed: $_"
+                    }
+                } else {
+                    Write-Error "The Base64 file path is invalid: $Base64Txt"
+                }
+            } else {
+                # If the text is Base64 decoded, the decoding result will be output directly.
+                $bytes = [System.Convert]::FromBase64String($InputString)
+                $decodedString = [System.Text.Encoding]::UTF8.GetString($bytes)
+                Write-Output $decodedString
+            }
         }
     }
 }
