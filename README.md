@@ -9,6 +9,7 @@
 - Export-SystemVar - 输出系统环境变量
 - Get-PortOccupancy - 输出占用端口的应用
 - Open-Hosts - 打开 hosts 文件
+- WCAG-Contrast - 计算颜色对比度并检查 WCAG 规范
 
 ## 使用
 
@@ -20,7 +21,7 @@ $profile
 
 来查看存放脚本的文件夹
 
-如果没有, 则通常在路径: "C:\Users\[用户]\Documents\WindowsPowerShell\Modules"
+如果没有, 则通常在路径: `"C:\Users\[用户]\Documents\WindowsPowerShell\Modules"`
 
 ## English
 
@@ -33,6 +34,7 @@ The current modules are:
 - Export-SystemVar - Outputs system environment variables
 - Get-PortOccupancy - Outputs the port-occupying app
 - Open-Hosts - Opens the hosts file
+- WCAG-Contrast - Calculate color contrast and check WCAG standards
 
 ## Use
 
@@ -44,4 +46,4 @@ $profile
 
 in your PowerShell terminal to view the folder where the script is stored
 
-If not, it is usually in the path: "C:\Users\[user]\Documents\WindowsPowerShell\Modules\"
+If not, it is usually in the path: `"C:\Users\[user]\Documents\WindowsPowerShell\Modules\"`
